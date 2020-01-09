@@ -1,0 +1,24 @@
+default:
+
+  system:
+    timezone: Europe/Berlin
+    locale: de_DE.UTF-8
+    default_editor: /usr/bin/vim
+    admin:
+      shell: /bin/bash
+    packages:
+
+  ufw:
+    allow_igmp: false
+    rules: {}
+
+  ssh:
+    sshd:
+      config: /etc/ssh/sshd_config
+
+  pi:
+    boot: {}
+    cmdline: {}
+
+  unattended_upgrades:
+    email_address: root

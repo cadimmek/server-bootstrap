@@ -1,0 +1,56 @@
+---
+- name: Merge variables
+  set_fact:
+    merged:
+      system: "{{ default.system | combine(system | default({}), recursive=true) }}"
+      ufw: "{{ default.ufw | combine(ufw | default({}), recursive=true) }}"
+      pi: "{{ default.pi | combine(pi | default({}), recursive=true) }}"
+      ssh: "{{ default.ssh | combine(ssh | default({}), recursive=true) }}"
+      unattended_upgrades: "{{ default.unattended_upgrades | combine(unattended_upgrades | default({}), recursive=true) }}"
+
+- name: Install default packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - vim
+    - fail2ban
+
+- name: Install system packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ merged.system.packages }}"
+
+- name: Setup admin user
+  import_tasks: admin.yml
+  when: merged.system.admin.username is defined
+
+- name: Setup ssh
+  import_tasks: ssh.yml
+
+- name: Set default editor to {{ merged.system.default_editor}}
+  alternatives:
+    name: editor
+    path: "{{ merged.system.default_editor }}"
+  when: merged.system.default_editor is defined
+
+- name: Set locale
+  import_tasks: locale.yml
+
+- name: Set hostname
+  import_tasks: hostname.yml
+  when: merged.system.hostname is defined
+
+- name: Configure mounts
+  import_tasks: mount.yml
+
+- name: Configure unattended-upgrades
+  import_tasks: unattended-upgrades.yml
+
+- name: Install & configure firewall
+  import_tasks: ufw.yml
+
+- name: Raspberry PI specfic configuration
+  import_tasks: pi.yml
+  when: ansible_local.model.pi

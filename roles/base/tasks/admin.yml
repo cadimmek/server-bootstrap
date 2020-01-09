@@ -1,0 +1,11 @@
+---
+
+- name: "Create admin user"
+  include_role:
+    name: user
+  vars:
+    user:
+      username: "{{ merged.system.admin.username }}"
+      shell: "{{ merged.system.admin.shell }}"
+      passwordless_sudo: "{{ merged.system.admin.passwordless_sudo }}"
+      ssh_key: "{{ merged.system.admin.key }}"

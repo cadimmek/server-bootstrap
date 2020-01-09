@@ -1,0 +1,15 @@
+---
+- name: "Create custom facts directory"
+  file:
+    path: "/etc/ansible/facts.d"
+    state: "directory"
+
+- name: "Insert custom fact file"
+  copy:
+    src: model.fact
+    dest: /etc/ansible/facts.d/model.fact
+    mode: 0755
+
+- name: "Reload ansible_local"
+  setup:
+    filter: ansible_local

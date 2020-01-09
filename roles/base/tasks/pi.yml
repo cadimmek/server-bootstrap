@@ -1,0 +1,40 @@
+---
+- name: Disable swap
+  block:
+    - shell: |
+        dphys-swapfile swapoff
+        dphys-swapfile uninstall
+    - package:
+        name: dphys-swapfile
+        state: absent
+  when:
+    - ansible_swaptotal_mb > 0
+
+
+
+- name: Check raspi-config values
+  command: "raspi-config nonint get_{{ item }}"
+  with_items: "{{ merged.pi.cmdline.keys()|list }}"
+  when: merged.pi.cmdline is defined
+  register: pi_config_get_result
+  changed_when: false
+
+- name: Configure raspi-config values
+  command: "raspi-config nonint do_{{ item.key }} {{ item.value }}"
+  with_dict: "{{ merged.pi.cmdline }}"
+  when: >
+    merged.pi.cmdline is defined and
+    pi_config_get_result.results|map(attribute="stdout")|sort != merged.pi.cmdline.values()|list|map("string")|sort
+  notify:
+    - reboot host
+
+- name: Update /boot/config.txt
+  lineinfile:
+    dest: /boot/config.txt
+    regexp: "^#?{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  with_dict: "{{ merged.pi.boot }}"
+  when: merged.pi.boot|length > 0
+  notify:
+    - reboot host
+

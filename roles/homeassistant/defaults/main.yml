@@ -1,0 +1,3 @@
+default:
+  hass:
+    install_dir: /opt/homeassistant

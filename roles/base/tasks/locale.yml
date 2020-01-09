@@ -1,0 +1,25 @@
+---
+- name: Set timezone to {{ merged.system.timezone }}
+  timezone:
+    name: "{{ merged.system.timezone }}"
+  when: merged.system.timezome is defined
+  notify:
+    - update-timezone
+
+- name: Ensure locale {{ merged.system.locale }} exists
+  locale_gen:
+    name: "{{ merged.system.locale }}"
+    state: present
+  when: merged.system.locale is defined
+  notify:
+    - update-locale
+
+- name: Set default system locale
+  debconf:
+    name: 'locales'
+    question: 'locales/default_environment_locale'
+    vtype: 'string'
+    value: '{{ merged.system.locale }}'
+  when: merged.system.locale is defined
+  notify:
+    - update-locale

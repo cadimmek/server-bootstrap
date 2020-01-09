@@ -1,0 +1,9 @@
+---
+- name: Merge variables
+  set_fact:
+    merged:
+      docker: "{{ default.docker | combine(docker | default({}), recursive=true) }}"
+
+- name: Install docker for {{ ansible_local.model.name }}
+  import_tasks: pi.yml
+  when: ansible_local.model.pi

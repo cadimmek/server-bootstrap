@@ -1,0 +1,59 @@
+---
+- name: Ensure dependencies
+  package:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - libffi-dev
+    - libssl-dev
+    - python
+    - python-pip
+
+- name: Check if Docker is already present.
+  command: which docker
+  failed_when: false
+  changed_when: false
+  register: docker_command_result
+
+- name: Download Docker install convenience script.
+  get_url:
+    url: https://get.docker.com/
+    dest: /tmp/get-docker.sh
+    mode: 0775
+  when: docker_command_result.rc == 1
+
+- name: Run Docker install convenience script.
+  command: /tmp/get-docker.sh
+  environment:
+    CHANNEL: stable
+  when: docker_command_result.rc == 1
+
+- name: Make sure Docker CE is the version specified.
+  package:
+    name: "docker-ce={{ merged.docker.version }}"
+    state: present
+  when: merged.docker.version is defined
+
+- name: Ensure Docker is started.
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Check for docker-compose
+  shell: command -v docker-compose >/dev/null 2>&1
+  register: docker_compose_exists
+
+- name: Install Docker Compose using Pip.
+  pip:
+    name: docker-compose
+    state: present
+    executable: "{{ merged.docker.pip_executable }}"
+  when: (merged.docker.install_compose | bool) and docker_compose_exists.rc == 1
+
+- name: Ensure docker users are added to the docker group.
+  user:
+    name: "{{ item }}"
+    group: docker
+    append: true
+  with_items: "{{ merged.docker.users }}"

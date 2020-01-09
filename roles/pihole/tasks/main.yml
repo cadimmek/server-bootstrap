@@ -1,0 +1,25 @@
+---
+- name: Merge variables
+  set_fact:
+    merged:
+      hass: "{{ default.pihole | combine(pihole | default({}), recursive=true) }}"
+
+- name: Clone repository
+  git:
+    repo: "https://github.com/cadimmek/pihole.git"
+    dest: "{{merged.pihole.install_dir}}"
+
+- name: Setup firewall
+  ufw:
+    rule: "{{ item.rule }}"
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+    from_ip: "{{ item.from_ip|default('any') }}"
+  with_items:
+    - {rule: "allow", port: "53", proto: "tcp"}
+    - {rule: "allow", port: "53", proto: "tcp"}
+
+- name: Start service
+  docker_compose:
+    project_src: "{{merged.pihole.install_dir}}"
+    state: present

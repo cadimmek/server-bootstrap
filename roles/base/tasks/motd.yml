@@ -1,0 +1,16 @@
+---
+- name: Delete /etc/motd
+  file:
+    path: "/etc/motd"
+    state: absent
+
+- name: Remove libpam-chksshpwd
+  package:
+    name: libpam-chksshpwd
+    state: absent
+
+- name: Clean motd.d path
+  file:
+    state: absent
+    path: "/etc/update-motd.d"
+

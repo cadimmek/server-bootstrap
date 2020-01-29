@@ -1,0 +1,39 @@
+---
+- include_tasks: prepare-debian.yml
+  when: ansible_os_family == 'Debian'
+
+#- include_tasks: prepare-redhat.yml
+#  when: ansible_os_family == 'Redhat'
+
+- name: Install Docker.
+  package:
+    name: "{{ docker.package.name }}"
+    state: present
+  with_items:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+  notify: restart docker
+
+- name: Install docker-compose
+  block:
+    - name: Check current docker-compose version.
+      command: docker-compose --version
+      register: docker_compose_current_version
+      changed_when: false
+      failed_when: false
+
+    - name: Delete existing docker-compose version if it's different.
+      file:
+        path: "{{ docker_compose_path }}"
+        state: absent
+      when: >
+        docker_compose_current_version.stdout is defined
+        and docker_compose_version not in docker_compose_current_version.stdout
+
+    - name: Ensure docker-compose is installed and available
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/{{docker.compose.version}}/docker-compose-{{ ansible_system }}-{{ ansible_userspace_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: 'u+x,g+x'
+  when: docker.compose.install | bool

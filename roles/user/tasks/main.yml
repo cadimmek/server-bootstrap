@@ -4,6 +4,21 @@
     name: "{{ user.username }}"
     shell: "{{ user.shell }}"
 
+- name: "Create groups"
+  group:
+    name: "{{item}}"
+    state: present
+  with_items: "{{user.groups}}"
+  when: user.groups|length > 0
+
+- name: "Add user to groups"
+  user:
+    name: "{{ user.username }}"
+    append: yes
+    group: "{{item}}"
+  with_items: "{{user.groups}}"
+  when: user.groups|length > 0
+
 - name: "Enable including files from sudoers.d/"
   lineinfile:
     path: "/etc/sudoers"

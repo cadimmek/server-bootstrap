@@ -1,11 +1,27 @@
 ---
-
 - name: "Create admin user"
   include_role:
     name: user
   vars:
     user:
-      username: "{{ merged.system.admin.username }}"
-      shell: "{{ merged.system.admin.shell }}"
-      passwordless_sudo: "{{ merged.system.admin.passwordless_sudo }}"
-      ssh_key: "{{ merged.system.admin.key }}"
+      username: "{{ system.admin.username }}"
+      shell: "{{ system.admin.shell }}"
+      passwordless_sudo: "{{ system.admin.passwordless_sudo }}"
+      ssh_key: "{{ system.admin.key }}"
+      groups: "{{ system.admin.groups }}"
+
+
+- name: Setup dotfiles
+  block:
+    - name: Checkout
+      git:
+        repo: "{{system.admin.dotfiles}}"
+        dest: "/home/{{ system.admin.username }}/.dotfiles"
+        update: "yes"
+        force: "yes"
+    - name: Set rights
+      file:
+        path: "/home/{{ system.admin.username }}/.dotfiles"
+        owner: "{{ system.admin.username }}"
+        group: "{{ system.admin.username }}"
+  when: system.admin.dotfiles is defined

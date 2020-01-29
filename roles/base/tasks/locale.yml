@@ -1,16 +1,16 @@
 ---
-- name: Set timezone to {{ merged.system.timezone }}
+- name: Set timezone to {{ system.timezone }}
   timezone:
-    name: "{{ merged.system.timezone }}"
-  when: merged.system.timezome is defined
+    name: "{{ system.timezone }}"
+  when: system.timezome is defined
   notify:
     - update-timezone
 
-- name: Ensure locale {{ merged.system.locale }} exists
+- name: Ensure locale {{ system.locale }} exists
   locale_gen:
-    name: "{{ merged.system.locale }}"
+    name: "{{ system.locale }}"
     state: present
-  when: merged.system.locale is defined
+  when: system.locale is defined
   notify:
     - update-locale
 
@@ -19,7 +19,7 @@
     name: 'locales'
     question: 'locales/default_environment_locale'
     vtype: 'string'
-    value: '{{ merged.system.locale }}'
-  when: merged.system.locale is defined
+    value: '{{ system.locale }}'
+  when: system.locale is defined
   notify:
     - update-locale

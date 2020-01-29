@@ -11,17 +11,17 @@
   with_items:
     - { direction: "incoming", policy: "deny" }
     - { direction: "outgoing", policy: "allow" }
-  when: merged.ufw.rules|length > 0
+  when: system.ufw.rules|length > 0
   notify:
     - reload ufw
 
 - name: Always allow ssh to make sure ansible works
   ufw:
     rule: "allow"
-    port: "22"
+    port: "{{ configured_port }}"
     proto: "tcp"
 
-- name: "Allow IGMP: {{ merged.ufw.allow_igmp }}"
+- name: "Allow IGMP: {{ system.ufw.allow_igmp }}"
   blockinfile:
     dest: /etc/ufw/before.rules
     insertbefore: ^# don't delete the 'COMMIT' line or these rules won't be processed
@@ -30,7 +30,7 @@
       -A ufw-before-input -p igmp -d 224.0.0.0/4 -j ACCEPT
       -A ufw-before-output -p igmp -d 224.0.0.0/4 -j ACCEPT
     state: present
-  when: merged.ufw.allow_igmp|bool
+  when: system.ufw.allow_igmp|bool
   notify:
     - reload ufw
 
@@ -41,8 +41,8 @@
     proto: "{{ item.proto }}"
     from_ip: "{{ item.from_ip|default('any') }}"
   with_items:
-    - "{{ merged.ufw.rules }}"
-  when: merged.ufw.rules|length > 0
+    - "{{ system.ufw.rules }}"
+  when: system.ufw.rules|length > 0
   notify:
     - reload ufw
 

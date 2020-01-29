@@ -26,22 +26,35 @@
           admin:
             username: carsten
             key: https://github.com/cadimmek.keys
+            #            dotfiles: https://github.com/cadimmek/dotfiles.git
             passwordless_sudo: true
+            groups:
+              - adm
+              - dialout
+              - cdrom
+              - sudo
+              - audio
+              - video
+              - plugdev
+              - games
+              - users
+              - input
+              - netdev
+              - gpio
+              - i2c
+              - spi
+              - docker
+
           packages:
             - git
             - nano
+            - dnsutils
+
           ufw:
             rules:
               - {rule: "allow", port: "80", proto: "tcp"}
               - {rule: "allow", port: "443", proto: "tcp"}
-          mounts:
-            tmpfs:
-              - { src: "/run", size: "10%", options: "nodev,noexec,nosuid" }
-              - { src: "/tmp", size: "10%", options: "nodev,nosuid" }
-              - { src: "/var/log", size: "10%", options: "nodev,noexec,nosuid" }
       tags: ['always']
-
-
 
     - name: Install docker
       include_role:
@@ -50,12 +63,6 @@
         docker:
           users:
             - carsten
+          pip_executable: pip3
 
-    - name: Install pi-hole
-      include_role:
-        name: pihole
-
-    - name: Install homeassistant
-      include_role:
-        name: homeassistant
 

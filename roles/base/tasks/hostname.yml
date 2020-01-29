@@ -1,12 +1,12 @@
 ---
-- name: Updating hostname {{ merged.system.hostname }}
+- name: Updating hostname {{ system.hostname }}
   block:
     - hostname:
-        name: "{{ merged.system.hostname }}"
+        name: "{{ system.hostname }}"
       register: hostname_change
 
     - copy:
-        content: "{{ merged.system.hostname }}{{'\n'}}"
+        content: "{{ system.hostname }}{{'\n'}}"
         dest: /etc/hostname
         backup: true
       register: hostname_change
@@ -15,6 +15,6 @@
   lineinfile:
     dest: /etc/hosts
     regexp: '^127\.0\.0\.1'
-    line: "127.0.0.1{{'\t'}}{{ merged.system.hostname }}"
+    line: "127.0.0.1{{'\t'}}{{ system.hostname }}"
     backup: true
     state: present

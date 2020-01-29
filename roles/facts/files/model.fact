@@ -1,8 +1,14 @@
 #!/bin/bash
-IFS= read -r -d '' MODEL </proc/device-tree/model || [[ $MODEL ]]
+
 PI="false"
-if [[ $MODEL == *"Raspberry Pi"* ]]; then
-  PI="true"
+MODEL="unknown"
+
+
+if [[ -f /proc/device-tree/model ]]; then
+    IFS= read -r -d '' MODEL </proc/device-tree/model || [[ $MODEL ]]
+    if [[ $MODEL == *"Raspberry Pi"* ]]; then
+      PI="true"
+    fi
 fi
 
 cat <<EOF

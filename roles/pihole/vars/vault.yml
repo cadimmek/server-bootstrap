@@ -1,0 +1,4 @@
+---
+pihole:
+  secrets:
+    webpassword: test

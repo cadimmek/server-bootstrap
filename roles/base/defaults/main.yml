@@ -1,12 +1,14 @@
-default:
+system:
+  timezone: Europe/Berlin
+  locale: de_DE.UTF-8
+  default_editor: /usr/bin/vim
+  admin:
+    shell: /bin/bash
+    groups: {}
+  packages:
 
-  system:
-    timezone: Europe/Berlin
-    locale: de_DE.UTF-8
-    default_editor: /usr/bin/vim
-    admin:
-      shell: /bin/bash
-    packages:
+  mounts:
+    tmpfs: {}
 
   ufw:
     allow_igmp: false

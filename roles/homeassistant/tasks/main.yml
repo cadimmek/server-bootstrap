@@ -1,13 +1,8 @@
 ---
-- name: Merge variables
-  set_fact:
-    merged:
-      hass: "{{ default.hass | combine(hass | default({}), recursive=true) }}"
-
 - name: Clone repository
   git:
     repo: "https://github.com/cadimmek/homeassistant.git"
-    dest: "{{merged.hass.install_dir}}"
+    dest: "{{hass.install_dir}}"
 
 
 - name: Setup firewall
@@ -23,5 +18,5 @@
 
 - name: Start service
   docker_compose:
-    project_src: "{{merged.hass.install_dir}}"
+    project_src: "{{hass.install_dir}}"
     state: present

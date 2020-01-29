@@ -98,7 +98,7 @@
 
 - name: Disable ssh remote root login
   lineinfile:
-    dest: "{{ merged.ssh.sshd.config }}"
+    dest: "{{ system.ssh.sshd.config }}"
     regexp: "^#?PermitRootLogin"
     line: "PermitRootLogin no"
     state: present
@@ -107,7 +107,7 @@
 
 - name: Disable X11 forwarding
   lineinfile:
-    dest: "{{ merged.ssh.sshd.config }}"
+    dest: "{{ system.ssh.sshd.config }}"
     regexp: "^#?X11Forwarding"
     line: "X11Forwarding no"
     state: present
@@ -116,7 +116,7 @@
 
 - name: Enable ssh strict mode
   lineinfile:
-    dest: "{{ merged.ssh.sshd.config }}"
+    dest: "{{ system.ssh.sshd.config }}"
     regexp: "^#?StrictModes"
     line: "StrictModes yes"
     state: present
@@ -125,7 +125,7 @@
 
 - name: Disallow password authentication
   lineinfile:
-    dest: "{{ merged.ssh.sshd.config }}"
+    dest: "{{ system.ssh.sshd.config }}"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
     state: present

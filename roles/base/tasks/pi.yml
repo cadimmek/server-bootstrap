@@ -14,17 +14,17 @@
 
 - name: Check raspi-config values
   command: "raspi-config nonint get_{{ item }}"
-  with_items: "{{ merged.pi.cmdline.keys()|list }}"
-  when: merged.pi.cmdline is defined
+  with_items: "{{ system.pi.cmdline.keys()|list }}"
+  when: system.pi.cmdline is defined
   register: pi_config_get_result
   changed_when: false
 
 - name: Configure raspi-config values
   command: "raspi-config nonint do_{{ item.key }} {{ item.value }}"
-  with_dict: "{{ merged.pi.cmdline }}"
+  with_dict: "{{ system.pi.cmdline }}"
   when: >
-    merged.pi.cmdline is defined and
-    pi_config_get_result.results|map(attribute="stdout")|sort != merged.pi.cmdline.values()|list|map("string")|sort
+    system.pi.cmdline is defined and
+    pi_config_get_result.results|map(attribute="stdout")|sort != pi.cmdline.values()|list|map("string")|sort
   notify:
     - reboot host
 
@@ -33,8 +33,22 @@
     dest: /boot/config.txt
     regexp: "^#?{{ item.key }}="
     line: "{{ item.key }}={{ item.value }}"
-  with_dict: "{{ merged.pi.boot }}"
-  when: merged.pi.boot|length > 0
+  with_dict: "{{ system.pi.boot }}"
+  when: system.pi.boot|length > 0
   notify:
     - reboot host
+
+- name: Mount tmpfs
+  mount:
+    src: tmpfs
+    name: "{{ item.src }}"
+    fstype: tmpfs
+    opts: "defaults,{{ item.options }},size={{ item.size }}"
+    dump: "0"
+    passno: "0"
+    state: mounted
+  with_items:
+    - { src: "/run", size: "10%", options: "nodev,noexec,nosuid" }
+    - { src: "/tmp", size: "10%", options: "nodev,nosuid" }
+    - { src: "/var/log", size: "10%", options: "nodev,noexec,nosuid" }
 

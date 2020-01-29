@@ -1,0 +1,25 @@
+---
+- name: Ensure dependencies
+  package:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - nodejs
+    - git
+    - make
+    - g++
+    - gcc
+
+- name: Checkout zigbee2mqtt
+  git:
+    repo: https://github.com/Koenkk/zigbee2mqtt.git
+    dest: "{{zigbee2mqtt.install_dir}}"
+
+- name: Install packages
+  npm:
+    path: "{{zigbee2mqtt.install_dir}}"
+
+- name: Copy config
+  template:
+    src:
+    dest: "{{zigbee2mqtt.install_dir}}/data/configuration.yaml"

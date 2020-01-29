@@ -1,9 +1,20 @@
 ---
-- name: Merge variables
-  set_fact:
-    merged:
-      docker: "{{ default.docker | combine(docker | default({}), recursive=true) }}"
-
-- name: Install docker for {{ ansible_local.model.name }}
+- name: Install docker for raspberry pi
   import_tasks: pi.yml
   when: ansible_local.model.pi
+
+- name: Install docker for linux
+  import_tasks: linux.yml
+  when: >
+    ansible_system == 'Linux' and
+    not ansible_local.model.pi
+
+
+- name: Ensure Docker is started and enabled at boot.
+  service:
+    name: docker
+    state: "{{ docker_service_state }}"
+    enabled: "{{ docker_service_enabled }}"
+
+- name: Ensure handlers are notified now to avoid firewall conflicts.
+  meta: flush_handlers
